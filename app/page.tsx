@@ -11,7 +11,7 @@ export default function Home() {
               Welcome to Liberia Division League
             </h1>
             <p className="text-xl md:text-2xl mb-8 text-blue-100">
-              Your complete platform for managing and tracking Liberia's football leagues
+              Your complete platform for managing and tracking Liberia's football leagues.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
