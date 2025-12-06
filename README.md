@@ -43,9 +43,10 @@ A comprehensive web-based platform for managing local sports division leagues in
 
 ### Installation
 
-1. **Clone or navigate to the project**
+1. **Clone the repository**
 ```bash
-cd liberia-league-app
+git clone https://github.com/Santos1134/localLeagues.git
+cd localLeagues
 ```
 
 2. **Install dependencies**
@@ -78,7 +79,7 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
 ## Project Structure
 
 ```
-liberia-league-app/
+localLeagues/
 ├── app/                    # Next.js app directory
 │   ├── layout.tsx         # Root layout with Header/Footer
 │   ├── page.tsx           # Homepage
