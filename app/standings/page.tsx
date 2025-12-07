@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import type { DivisionStanding } from '@/lib/types/database.types'
 import ExportButton from '@/components/ExportButton'
+import Image from 'next/image'
 
 export default async function StandingsPage() {
   const supabase = await createClient()
@@ -148,13 +149,17 @@ export default async function StandingsPage() {
                               <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
                                 <div className="flex items-center gap-3">
                                   {(team as any).logo_url ? (
-                                    <img
-                                      src={(team as any).logo_url}
-                                      alt={team.team_name}
-                                      className="w-8 h-8 object-contain"
-                                    />
+                                    <div className="w-8 h-8 relative flex-shrink-0">
+                                      <Image
+                                        src={(team as any).logo_url}
+                                        alt={team.team_name}
+                                        width={32}
+                                        height={32}
+                                        className="object-contain"
+                                      />
+                                    </div>
                                   ) : (
-                                    <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-xs font-bold text-gray-500">
+                                    <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-xs font-bold text-gray-500 flex-shrink-0">
                                       {team.team_name.substring(0, 2).toUpperCase()}
                                     </div>
                                   )}
