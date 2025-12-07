@@ -207,7 +207,7 @@ export default async function StandingsPage() {
                   <div className="bg-gray-50 px-6 py-4 border-t">
                     <div className="flex gap-6 text-xs text-gray-600">
                       <div className="flex items-center">
-                        <div className="w-4 h-4 border-l-4 border-liberia-red mr-2"></div>
+                        <div className="w-4 h-4 border-l-4 border-green-500 mr-2"></div>
                         Promotion
                       </div>
                       <div className="flex items-center">
