@@ -113,28 +113,6 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="bg-liberia-blue text-white py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">Stay Updated</h2>
-          <p className="text-xl mb-8 text-blue-100">
-            Follow all the latest matches, standings, and player statistics
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/fixtures"
-              className="bg-yellow-500 text-liberia-blue-dark px-8 py-4 rounded-lg font-bold text-lg hover:bg-yellow-400 transition inline-block"
-            >
-              View Fixtures
-            </Link>
-            <Link
-              href="/standings"
-              className="bg-white text-liberia-blue-dark px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition inline-block"
-            >
-              View Standings
-            </Link>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }
