@@ -15,19 +15,22 @@ export default async function AdminDashboard() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('role')
+    .select('role, managed_league_id')
     .eq('id', user.id)
     .single()
 
-  if (!profile || profile.role !== 'admin') {
+  if (!profile || (profile.role !== 'admin' && profile.role !== 'league_admin')) {
     redirect('/')
   }
 
-  const [leaguesResult, divisionsResult, teamsResult, matchesResult] = await Promise.all([
+  const isSuperAdmin = profile.role === 'admin'
+
+  const [leaguesResult, divisionsResult, teamsResult, matchesResult, cupsResult] = await Promise.all([
     supabase.from('leagues').select('*', { count: 'exact' }),
     supabase.from('divisions').select('*', { count: 'exact' }),
     supabase.from('teams').select('*', { count: 'exact' }),
     supabase.from('matches').select('*', { count: 'exact' }).eq('status', 'scheduled'),
+    supabase.from('cups').select('*', { count: 'exact' }),
   ])
 
   const stats = {
@@ -35,6 +38,7 @@ export default async function AdminDashboard() {
     divisions: divisionsResult.count || 0,
     teams: teamsResult.count || 0,
     upcomingMatches: matchesResult.count || 0,
+    cups: cupsResult.count || 0,
   }
 
   return (
@@ -49,7 +53,7 @@ export default async function AdminDashboard() {
 
       <div className="container mx-auto px-4 py-8">
         {/* Statistics Cards with Liberian Colors */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg shadow-lg border-t-4 border-liberia-red">
             <div className="text-sm font-medium text-gray-600 mb-2">Total Leagues</div>
             <div className="text-4xl font-bold text-liberia-blue">{stats.leagues}</div>
@@ -63,15 +67,19 @@ export default async function AdminDashboard() {
             <div className="text-4xl font-bold text-liberia-blue">{stats.teams}</div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow-lg border-t-4 border-liberia-blue">
+            <div className="text-sm font-medium text-gray-600 mb-2">Cup Competitions</div>
+            <div className="text-4xl font-bold text-liberia-red">{stats.cups}</div>
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow-lg border-t-4 border-liberia-red">
             <div className="text-sm font-medium text-gray-600 mb-2">Upcoming Matches</div>
-            <div className="text-4xl font-bold text-liberia-red">{stats.upcomingMatches}</div>
+            <div className="text-4xl font-bold text-liberia-blue">{stats.upcomingMatches}</div>
           </div>
         </div>
 
         {/* Quick Actions */}
         <div className="bg-white rounded-lg shadow-lg p-8 mb-8 border-l-4 border-liberia-red">
           <h2 className="text-2xl font-bold mb-6 text-liberia-blue">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Link
               href="/admin/leagues"
               className="p-6 bg-gradient-to-br from-liberia-blue to-liberia-blue-dark text-white rounded-lg hover:shadow-xl transition-all transform hover:scale-105"
@@ -82,6 +90,15 @@ export default async function AdminDashboard() {
             </Link>
 
             <Link
+              href="/admin/cups"
+              className="p-6 bg-gradient-to-br from-yellow-500 to-yellow-600 text-white rounded-lg hover:shadow-xl transition-all transform hover:scale-105"
+            >
+              <div className="text-3xl mb-3">🏆</div>
+              <div className="font-bold text-lg">Cup Competitions</div>
+              <div className="text-sm text-yellow-100 mt-1">Create and manage tournaments</div>
+            </Link>
+
+            <Link
               href="/admin/matches"
               className="p-6 bg-gradient-to-br from-liberia-red to-liberia-red-dark text-white rounded-lg hover:shadow-xl transition-all transform hover:scale-105"
             >
@@ -89,6 +106,17 @@ export default async function AdminDashboard() {
               <div className="font-bold text-lg">Manage Matches</div>
               <div className="text-sm text-red-100 mt-1">Schedule and manage fixtures</div>
             </Link>
+
+            {isSuperAdmin && (
+              <Link
+                href="/admin/league-admins"
+                className="p-6 bg-gradient-to-br from-purple-600 to-purple-700 text-white rounded-lg hover:shadow-xl transition-all transform hover:scale-105"
+              >
+                <div className="text-3xl mb-3">👥</div>
+                <div className="font-bold text-lg">League Admins</div>
+                <div className="text-sm text-purple-100 mt-1">Manage admin accounts</div>
+              </Link>
+            )}
 
             <Link
               href="/standings"
