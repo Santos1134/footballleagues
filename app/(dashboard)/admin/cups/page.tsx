@@ -8,7 +8,7 @@ interface Cup {
   id: string
   name: string
   description: string | null
-  league_id: string
+  league_id: string | null
   season: string | null
   total_teams: number
   teams_per_group: number
@@ -18,14 +18,8 @@ interface Cup {
   created_at: string
 }
 
-interface League {
-  id: string
-  name: string
-}
-
 export default function CupsManagementPage() {
   const [cups, setCups] = useState<Cup[]>([])
-  const [leagues, setLeagues] = useState<League[]>([])
   const [showForm, setShowForm] = useState(false)
   const [editingCup, setEditingCup] = useState<Cup | null>(null)
   const [loading, setLoading] = useState(true)
@@ -35,7 +29,6 @@ export default function CupsManagementPage() {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    league_id: '',
     season: new Date().getFullYear().toString(),
     total_teams: 16,
     teams_per_group: 4,
@@ -53,24 +46,13 @@ export default function CupsManagementPage() {
   const fetchCupsAndLeagues = async () => {
     setLoading(true)
 
-    // Fetch leagues
-    const { data: leaguesData } = await supabase
-      .from('leagues')
-      .select('id, name')
-      .order('name')
-
-    if (leaguesData) setLeagues(leaguesData)
-
-    // Fetch cups with league info
+    // Fetch cups
     const { data: cupsData } = await supabase
       .from('cups')
-      .select(`
-        *,
-        league:leagues(name)
-      `)
+      .select('*')
       .order('created_at', { ascending: false })
 
-    if (cupsData) setCups(cupsData as any)
+    if (cupsData) setCups(cupsData)
 
     setLoading(false)
   }
@@ -107,11 +89,6 @@ export default function CupsManagementPage() {
       return
     }
 
-    if (!formData.league_id) {
-      setError('Please select a league')
-      return
-    }
-
     if (formData.total_teams < formData.teams_per_group) {
       setError('Total teams must be greater than or equal to teams per group')
       return
@@ -125,7 +102,7 @@ export default function CupsManagementPage() {
     const cupData = {
       name: formData.name.trim(),
       description: formData.description.trim() || null,
-      league_id: formData.league_id,
+      league_id: null,  // Cups are independent, not associated with leagues
       season: formData.season || null,
       total_teams: formData.total_teams,
       teams_per_group: formData.teams_per_group,
@@ -175,7 +152,6 @@ export default function CupsManagementPage() {
     setFormData({
       name: cup.name,
       description: cup.description || '',
-      league_id: cup.league_id,
       season: cup.season || new Date().getFullYear().toString(),
       total_teams: cup.total_teams,
       teams_per_group: cup.teams_per_group,
@@ -207,7 +183,6 @@ export default function CupsManagementPage() {
     setFormData({
       name: '',
       description: '',
-      league_id: '',
       season: new Date().getFullYear().toString(),
       total_teams: 16,
       teams_per_group: 4,
@@ -284,41 +259,19 @@ export default function CupsManagementPage() {
 
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Basic Information */}
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                    Cup Name *
-                  </label>
-                  <input
-                    id="name"
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-liberia-blue focus:border-transparent"
-                    placeholder="e.g., FA Cup, Champions Cup"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="league" className="block text-sm font-medium text-gray-700 mb-2">
-                    League *
-                  </label>
-                  <select
-                    id="league"
-                    value={formData.league_id}
-                    onChange={(e) => setFormData({ ...formData, league_id: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-liberia-blue focus:border-transparent"
-                    required
-                  >
-                    <option value="">Select League</option>
-                    {leagues.map(league => (
-                      <option key={league.id} value={league.id}>
-                        {league.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                  Cup Name *
+                </label>
+                <input
+                  id="name"
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-liberia-blue focus:border-transparent"
+                  placeholder="e.g., FA Cup, Champions Cup"
+                  required
+                />
               </div>
 
               <div>
@@ -488,9 +441,6 @@ export default function CupsManagementPage() {
                     <div className="flex justify-between items-start mb-4">
                       <div className="flex-1">
                         <h3 className="text-xl font-bold mb-2">{cup.name}</h3>
-                        <p className="text-sm text-gray-600 mb-2">
-                          {(cup as any).league?.name}
-                        </p>
                         <span className={`inline-block px-3 py-1 text-xs font-semibold rounded-full ${getStatusBadge(cup.status)}`}>
                           {cup.status.replace('_', ' ')}
                         </span>
