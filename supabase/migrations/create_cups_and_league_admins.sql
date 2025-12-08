@@ -1,16 +1,5 @@
--- Add league_admin role to the user_role enum type
-DO $$
-BEGIN
-  -- Check if the enum value already exists
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_enum
-    WHERE enumlabel = 'league_admin'
-    AND enumtypid = (SELECT oid FROM pg_type WHERE typname = 'user_role')
-  ) THEN
-    -- Add the new enum value
-    ALTER TYPE user_role ADD VALUE 'league_admin';
-  END IF;
-END $$;
+-- IMPORTANT: Run 01_add_league_admin_enum.sql FIRST in a separate transaction
+-- Then run this migration after committing the enum change
 
 -- Add league_admin role and league assignment to profiles
 ALTER TABLE profiles
