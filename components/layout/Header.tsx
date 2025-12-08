@@ -1,10 +1,49 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { createClient } from '@/lib/supabase/client'
+import { useRouter } from 'next/navigation'
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const supabase = createClient()
+  const router = useRouter()
+
+  useEffect(() => {
+    // Check initial auth state
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      setIsLoggedIn(!!user)
+    }
+    checkAuth()
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsLoggedIn(!!session?.user)
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [supabase.auth])
+
+  const handleLogout = async () => {
+    if (!confirm('Are you sure you want to logout?')) return
+
+    setIsLoggingOut(true)
+    try {
+      await supabase.auth.signOut()
+      router.push('/')
+      router.refresh()
+    } catch (error) {
+      console.error('Logout error:', error)
+    } finally {
+      setIsLoggingOut(false)
+    }
+  }
 
   return (
     <header className="bg-liberia-blue text-white shadow-lg border-b-4 border-liberia-red">
@@ -38,12 +77,22 @@ export default function Header() {
             <Link href="/admin" className="hover:text-liberia-red transition">
               Dashboard
             </Link>
-            <Link
-              href="/login"
-              className="bg-liberia-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-liberia-red-dark transition"
-            >
-              Login
-            </Link>
+            {isLoggedIn ? (
+              <button
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                className="bg-liberia-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-liberia-red-dark transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoggingOut ? 'Logging out...' : 'Logout'}
+              </button>
+            ) : (
+              <Link
+                href="/login"
+                className="bg-liberia-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-liberia-red-dark transition"
+              >
+                Login
+              </Link>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -114,13 +163,26 @@ export default function Header() {
             >
               Dashboard
             </Link>
-            <Link
-              href="/login"
-              className="block bg-liberia-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-liberia-red-dark transition text-center"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Login
-            </Link>
+            {isLoggedIn ? (
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false)
+                  handleLogout()
+                }}
+                disabled={isLoggingOut}
+                className="block w-full bg-liberia-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-liberia-red-dark transition text-center disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoggingOut ? 'Logging out...' : 'Logout'}
+              </button>
+            ) : (
+              <Link
+                href="/login"
+                className="block bg-liberia-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-liberia-red-dark transition text-center"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Login
+              </Link>
+            )}
           </div>
         )}
       </nav>
