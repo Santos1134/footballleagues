@@ -148,25 +148,24 @@ export default function CupDetailsPage() {
         `)
         .eq('cup_id', cupId)
 
-      if (teamsData) {
-        const formattedTeams = teamsData.map((ct: any) => ({
-          cup_team_id: ct.id,
-          id: ct.teams.id,
-          name: ct.teams.name,
-          division_id: ct.teams.division_id,
-          group_id: ct.group_id,
-          group_name: ct.cup_groups?.group_name || null,
-          points: ct.points,
-          played: ct.played,
-          won: ct.won,
-          drawn: ct.drawn,
-          lost: ct.lost,
-          goals_for: ct.goals_for,
-          goals_against: ct.goals_against,
-          goal_difference: ct.goal_difference
-        }))
-        setCupTeams(formattedTeams)
-      }
+      const formattedTeams = teamsData?.map((ct: any) => ({
+        cup_team_id: ct.id,
+        id: ct.teams.id,
+        name: ct.teams.name,
+        division_id: ct.teams.division_id,
+        group_id: ct.group_id,
+        group_name: ct.cup_groups?.group_name || null,
+        points: ct.points,
+        played: ct.played,
+        won: ct.won,
+        drawn: ct.drawn,
+        lost: ct.lost,
+        goals_for: ct.goals_for,
+        goals_against: ct.goals_against,
+        goal_difference: ct.goal_difference
+      })) || []
+
+      setCupTeams(formattedTeams)
 
       // Fetch available teams (all teams not yet in this cup)
       const cupTeamIds = teamsData?.map((ct: any) => ct.teams.id) || []
