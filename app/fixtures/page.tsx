@@ -4,8 +4,8 @@ import type { Match } from '@/lib/types/database.types'
 export default async function FixturesPage() {
   const supabase = await createClient()
 
-  // Fetch all matches with team information
-  const { data: matches } = await supabase
+  // Fetch league matches with team information
+  const { data: leagueMatches } = await supabase
     .from('matches')
     .select(`
       *,
@@ -30,10 +30,48 @@ export default async function FixturesPage() {
     .order('match_date', { ascending: true })
     .limit(50)
 
+  // Fetch cup matches with team information from cup_teams_registry
+  const { data: cupMatches } = await supabase
+    .from('cup_matches')
+    .select(`
+      *,
+      home_team:cup_teams_registry!cup_matches_home_cup_team_id_fkey (
+        id,
+        name,
+        logo_url
+      ),
+      away_team:cup_teams_registry!cup_matches_away_cup_team_id_fkey (
+        id,
+        name,
+        logo_url
+      ),
+      cup:cups (
+        id,
+        name
+      )
+    `)
+    .order('match_date', { ascending: true })
+    .limit(50)
+
+  // Format cup matches to match league match structure
+  const formattedCupMatches = cupMatches?.map((match: any) => ({
+    ...match,
+    division: { name: match.cup?.name || 'Cup Competition' },
+    competition_type: 'cup'
+  })) || []
+
+  // Combine league and cup matches
+  const allMatches = [...(leagueMatches || []), ...formattedCupMatches]
+    .sort((a, b) => {
+      const dateA = a.match_date ? new Date(a.match_date).getTime() : 0
+      const dateB = b.match_date ? new Date(b.match_date).getTime() : 0
+      return dateA - dateB
+    })
+
   // Group matches by status
-  const upcomingMatches = matches?.filter((m) => m.status === 'scheduled') || []
-  const liveMatches = matches?.filter((m) => m.status === 'live') || []
-  const completedMatches = matches?.filter((m) => m.status === 'completed') || []
+  const upcomingMatches = allMatches.filter((m) => m.status === 'scheduled')
+  const liveMatches = allMatches.filter((m) => m.status === 'live')
+  const completedMatches = allMatches.filter((m) => m.status === 'completed')
 
   const MatchCard = ({ match }: { match: any }) => {
     const matchDate = new Date(match.match_date)
