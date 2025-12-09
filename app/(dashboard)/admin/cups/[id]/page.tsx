@@ -17,14 +17,15 @@ interface Cup {
   end_date: string | null
 }
 
-interface Team {
+interface CupTeam {
+  cup_team_id: string
   id: string
   name: string
-  division_id: string
-}
-
-interface CupTeam extends Team {
-  cup_team_id: string
+  short_name: string | null
+  logo_url: string | null
+  stadium: string | null
+  city: string | null
+  coach: string | null
   group_id: string | null
   group_name: string | null
   points: number
@@ -86,7 +87,6 @@ export default function CupDetailsPage() {
   const [activeTab, setActiveTab] = useState<TabType>('overview')
   const [cup, setCup] = useState<Cup | null>(null)
   const [cupTeams, setCupTeams] = useState<CupTeam[]>([])
-  const [availableTeams, setAvailableTeams] = useState<Team[]>([])
   const [groups, setGroups] = useState<Group[]>([])
   const [matches, setMatches] = useState<Match[]>([])
   const [loading, setLoading] = useState(true)
@@ -94,8 +94,15 @@ export default function CupDetailsPage() {
   const [success, setSuccess] = useState('')
 
   // Team management
-  const [selectedTeamId, setSelectedTeamId] = useState('')
   const [showAddTeam, setShowAddTeam] = useState(false)
+  const [newTeamForm, setNewTeamForm] = useState({
+    name: '',
+    short_name: '',
+    logo_url: '',
+    stadium: '',
+    city: '',
+    coach: ''
+  })
 
   // Player management
   const [selectedTeamForPlayers, setSelectedTeamForPlayers] = useState('')
@@ -120,13 +127,13 @@ export default function CupDetailsPage() {
     if (cupData) {
       setCup(cupData)
 
-      // Fetch teams in this cup
+      // Fetch teams in this cup from independent registry
       const { data: teamsData } = await supabase
         .from('cup_teams')
         .select(`
           id,
           cup_id,
-          team_id,
+          cup_team_id,
           group_id,
           points,
           played,
@@ -136,10 +143,14 @@ export default function CupDetailsPage() {
           goals_for,
           goals_against,
           goal_difference,
-          teams (
+          cup_team:cup_teams_registry (
             id,
             name,
-            division_id
+            short_name,
+            logo_url,
+            stadium,
+            city,
+            coach
           ),
           cup_groups (
             id,
@@ -150,9 +161,13 @@ export default function CupDetailsPage() {
 
       const formattedTeams = teamsData?.map((ct: any) => ({
         cup_team_id: ct.id,
-        id: ct.teams.id,
-        name: ct.teams.name,
-        division_id: ct.teams.division_id,
+        id: ct.cup_team?.id || ct.cup_team_id,
+        name: ct.cup_team?.name || 'Unknown Team',
+        short_name: ct.cup_team?.short_name || null,
+        logo_url: ct.cup_team?.logo_url || null,
+        stadium: ct.cup_team?.stadium || null,
+        city: ct.cup_team?.city || null,
+        coach: ct.cup_team?.coach || null,
         group_id: ct.group_id,
         group_name: ct.cup_groups?.group_name || null,
         points: ct.points,
@@ -166,18 +181,6 @@ export default function CupDetailsPage() {
       })) || []
 
       setCupTeams(formattedTeams)
-
-      // Fetch available teams (all teams not yet in this cup)
-      const cupTeamIds = teamsData?.map((ct: any) => ct.teams.id) || []
-      const { data: allTeams } = await supabase
-        .from('teams')
-        .select('id, name, division_id')
-        .not('id', 'in', `(${cupTeamIds.join(',') || '00000000-0000-0000-0000-000000000000'})`)
-        .order('name')
-
-      if (allTeams) {
-        setAvailableTeams(allTeams)
-      }
 
       // Fetch groups
       const { data: groupsData } = await supabase
@@ -230,23 +233,51 @@ export default function CupDetailsPage() {
   }
 
   const addTeamToCup = async () => {
-    if (!selectedTeamId) {
-      setError('Please select a team')
+    if (!newTeamForm.name.trim()) {
+      setError('Please enter a team name')
       return
     }
 
-    const { error: insertError } = await supabase
+    // First, create the team in the registry
+    const { data: newTeam, error: registryError } = await supabase
+      .from('cup_teams_registry')
+      .insert({
+        cup_id: cupId,
+        name: newTeamForm.name.trim(),
+        short_name: newTeamForm.short_name.trim() || null,
+        logo_url: newTeamForm.logo_url.trim() || null,
+        stadium: newTeamForm.stadium.trim() || null,
+        city: newTeamForm.city.trim() || null,
+        coach: newTeamForm.coach.trim() || null
+      })
+      .select()
+      .single()
+
+    if (registryError) {
+      setError(registryError.message)
+      return
+    }
+
+    // Then, add it to cup_teams for stats tracking
+    const { error: cupTeamsError } = await supabase
       .from('cup_teams')
       .insert({
         cup_id: cupId,
-        team_id: selectedTeamId
+        cup_team_id: newTeam.id
       })
 
-    if (insertError) {
-      setError(insertError.message)
+    if (cupTeamsError) {
+      setError(cupTeamsError.message)
     } else {
-      setSuccess('Team added successfully')
-      setSelectedTeamId('')
+      setSuccess(`Team "${newTeamForm.name}" added successfully`)
+      setNewTeamForm({
+        name: '',
+        short_name: '',
+        logo_url: '',
+        stadium: '',
+        city: '',
+        coach: ''
+      })
       setShowAddTeam(false)
       fetchCupData()
     }
@@ -566,26 +597,98 @@ export default function CupDetailsPage() {
               </div>
 
               {showAddTeam && (
-                <div className="bg-gray-50 p-4 rounded-lg mb-6">
-                  <h3 className="font-semibold mb-3">Add Team to Cup</h3>
-                  <div className="flex gap-4">
-                    <select
-                      value={selectedTeamId}
-                      onChange={(e) => setSelectedTeamId(e.target.value)}
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
-                    >
-                      <option value="">Select a team...</option>
-                      {availableTeams.map(team => (
-                        <option key={team.id} value={team.id}>
-                          {team.name}
-                        </option>
-                      ))}
-                    </select>
+                <div className="bg-gray-50 p-6 rounded-lg mb-6">
+                  <h3 className="font-semibold mb-4 text-lg">Create New Team for Cup</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Team Name <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={newTeamForm.name}
+                        onChange={(e) => setNewTeamForm({...newTeamForm, name: e.target.value})}
+                        placeholder="e.g., Monrovia United"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-liberia-blue focus:border-transparent"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Short Name
+                      </label>
+                      <input
+                        type="text"
+                        value={newTeamForm.short_name}
+                        onChange={(e) => setNewTeamForm({...newTeamForm, short_name: e.target.value})}
+                        placeholder="e.g., MON"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-liberia-blue focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Stadium
+                      </label>
+                      <input
+                        type="text"
+                        value={newTeamForm.stadium}
+                        onChange={(e) => setNewTeamForm({...newTeamForm, stadium: e.target.value})}
+                        placeholder="e.g., Samuel Kanyon Doe Stadium"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-liberia-blue focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        City
+                      </label>
+                      <input
+                        type="text"
+                        value={newTeamForm.city}
+                        onChange={(e) => setNewTeamForm({...newTeamForm, city: e.target.value})}
+                        placeholder="e.g., Monrovia"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-liberia-blue focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Coach
+                      </label>
+                      <input
+                        type="text"
+                        value={newTeamForm.coach}
+                        onChange={(e) => setNewTeamForm({...newTeamForm, coach: e.target.value})}
+                        placeholder="e.g., John Doe"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-liberia-blue focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Logo URL
+                      </label>
+                      <input
+                        type="url"
+                        value={newTeamForm.logo_url}
+                        onChange={(e) => setNewTeamForm({...newTeamForm, logo_url: e.target.value})}
+                        placeholder="https://example.com/logo.png"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-liberia-blue focus:border-transparent"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-3 mt-4">
                     <button
                       onClick={addTeamToCup}
                       className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg transition"
                     >
-                      Add
+                      Create & Add Team
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowAddTeam(false)
+                        setNewTeamForm({name: '', short_name: '', logo_url: '', stadium: '', city: '', coach: ''})
+                      }}
+                      className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded-lg transition"
+                    >
+                      Cancel
                     </button>
                   </div>
                 </div>
