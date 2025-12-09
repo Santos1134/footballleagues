@@ -226,7 +226,6 @@ export default function CupDetailsPage() {
           cup_groups(group_name)
         `)
         .eq('cup_id', cupId)
-        .order('match_date', { ascending: true })
 
       if (matchesData) {
         const formattedMatches = matchesData.map((m: any) => ({
@@ -244,6 +243,18 @@ export default function CupDetailsPage() {
           group_id: m.group_id,
           group_name: m.cup_groups?.group_name || null
         }))
+        .sort((a: any, b: any) => {
+          // Matches without dates go to the end
+          if (!a.match_date && !b.match_date) return 0
+          if (!a.match_date) return 1
+          if (!b.match_date) return -1
+
+          // Sort by date/time (earliest first)
+          const dateA = new Date(a.match_date).getTime()
+          const dateB = new Date(b.match_date).getTime()
+          return dateA - dateB
+        })
+
         setMatches(formattedMatches)
       }
     }

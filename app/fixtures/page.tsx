@@ -105,8 +105,14 @@ export default function FixturesPage() {
     // Combine league and cup matches
     const combined = [...formattedLeagueMatches, ...formattedCupMatches]
       .sort((a, b) => {
-        const dateA = a.match_date ? new Date(a.match_date).getTime() : 0
-        const dateB = b.match_date ? new Date(b.match_date).getTime() : 0
+        // Matches without dates go to the end
+        if (!a.match_date && !b.match_date) return 0
+        if (!a.match_date) return 1
+        if (!b.match_date) return -1
+
+        // Sort by date/time (earliest first)
+        const dateA = new Date(a.match_date).getTime()
+        const dateB = new Date(b.match_date).getTime()
         return dateA - dateB
       })
 
