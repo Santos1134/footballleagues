@@ -138,79 +138,28 @@ export default function AdministratorsPage() {
     }
 
     try {
-      // Step 1: Create auth user (with auto-confirm to bypass email verification)
-      const { data: authData, error: signUpError } = await supabase.auth.signUp({
-        email: formData.email.trim().toLowerCase(),
-        password: formData.password,
-        options: {
-          data: {
-            full_name: formData.full_name.trim() || null,
-          },
-          emailRedirectTo: undefined
-        }
+      // Call API route to create admin (uses service role to bypass RLS)
+      const response = await fetch('/api/admin/create-user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email.trim().toLowerCase(),
+          password: formData.password,
+          full_name: formData.full_name.trim() || null,
+          role: 'league_admin',
+          managed_league_id: formData.admin_type === 'league' ? formData.managed_league_id : null,
+          managed_cup_id: formData.admin_type === 'cup' ? formData.managed_cup_id : null,
+        }),
       })
 
-      if (signUpError) {
-        console.error('SignUp Error:', signUpError)
-        setError(`Signup failed: ${signUpError.message}. Note: Check if email confirmations are disabled in Supabase Auth settings.`)
+      const result = await response.json()
+
+      if (!response.ok) {
+        console.error('API Error:', result)
+        setError(result.error || 'Failed to create admin')
         return
-      }
-
-      if (!authData.user) {
-        setError('User creation failed - no user returned')
-        return
-      }
-
-      console.log('User created:', authData.user.id, 'Email confirmed:', authData.user.email_confirmed_at)
-
-      // Step 2: Wait for profile trigger
-      await new Promise(resolve => setTimeout(resolve, 2000))
-
-      // Step 3: Check if profile exists
-      const { data: existingProfile, error: checkError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('id', authData.user.id)
-        .single()
-
-      console.log('Existing profile:', existingProfile, 'Check error:', checkError)
-
-      // Step 4: Insert or update profile
-      if (!existingProfile) {
-        // Profile doesn't exist, insert it
-        const { error: insertError } = await supabase
-          .from('profiles')
-          .insert({
-            id: authData.user.id,
-            email: formData.email.trim().toLowerCase(),
-            role: 'league_admin',
-            managed_league_id: formData.admin_type === 'league' ? formData.managed_league_id : null,
-            managed_cup_id: formData.admin_type === 'cup' ? formData.managed_cup_id : null,
-            full_name: formData.full_name.trim() || null
-          })
-
-        if (insertError) {
-          console.error('Insert Error:', insertError)
-          setError(`Failed to create profile: ${insertError.message}`)
-          return
-        }
-      } else {
-        // Profile exists, update it
-        const { error: updateError } = await supabase
-          .from('profiles')
-          .update({
-            role: 'league_admin',
-            managed_league_id: formData.admin_type === 'league' ? formData.managed_league_id : null,
-            managed_cup_id: formData.admin_type === 'cup' ? formData.managed_cup_id : null,
-            full_name: formData.full_name.trim() || null
-          })
-          .eq('id', authData.user.id)
-
-        if (updateError) {
-          console.error('Update Error:', updateError)
-          setError(`Failed to update profile: ${updateError.message}`)
-          return
-        }
       }
 
       const managementType = formData.admin_type === 'league' ? 'league' : 'cup'
