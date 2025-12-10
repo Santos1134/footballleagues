@@ -5,18 +5,46 @@ import { createClient } from '@/lib/supabase/server'
 export default async function Home() {
   const supabase = await createClient()
 
-  // Fetch real stats from database (only active leagues and their data)
-  const [leaguesResult, divisionsResult, teamsResult, playersResult] = await Promise.all([
+  // Fetch active cups with their teams
+  const { data: activeCups } = await supabase
+    .from('cups')
+    .select(`
+      id,
+      name,
+      start_date,
+      end_date,
+      status,
+      cup_teams (
+        id,
+        team_name
+      )
+    `)
+    .eq('status', 'active')
+    .order('start_date', { ascending: false })
+    .limit(3)
+
+  // Fetch real stats from database
+  const [
+    leaguesResult,
+    divisionsResult,
+    leagueTeamsResult,
+    cupTeamsResult,
+    playersResult
+  ] = await Promise.all([
     supabase.from('leagues').select('id', { count: 'exact', head: true }).eq('is_active', true),
     supabase.from('divisions').select('id, leagues!inner(is_active)', { count: 'exact', head: true }).eq('leagues.is_active', true),
-    supabase.from('teams').select('id, division:divisions!inner(league_id, leagues!inner(is_active))', { count: 'exact', head: true }).eq('division.leagues.is_active', true),
-    supabase.from('players').select('id, team:teams!inner(division:divisions!inner(league_id, leagues!inner(is_active)))', { count: 'exact', head: true }).eq('team.division.leagues.is_active', true),
+    // Count teams from leagues/divisions
+    supabase.from('teams').select('id', { count: 'exact', head: true }),
+    // Count teams from cups
+    supabase.from('cup_teams').select('id', { count: 'exact', head: true }),
+    supabase.from('players').select('id', { count: 'exact', head: true }),
   ])
 
   const stats = {
     leagues: leaguesResult.count || 0,
     divisions: divisionsResult.count || 0,
-    teams: teamsResult.count || 0,
+    // Total teams = league teams + cup teams
+    teams: (leagueTeamsResult.count || 0) + (cupTeamsResult.count || 0),
     players: playersResult.count || 0,
   }
 
@@ -77,6 +105,42 @@ export default async function Home() {
           <div className="mb-12">
             <AnnouncementsFeed />
           </div>
+
+          {/* Active Cups Section */}
+          {activeCups && activeCups.length > 0 && (
+            <div className="mb-16">
+              <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">
+                Active Cup Competitions
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {activeCups.map((cup: any) => (
+                  <Link
+                    key={cup.id}
+                    href={`/admin/cups/${cup.id}`}
+                    className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow border-l-4 border-liberia-red"
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <h3 className="text-xl font-bold text-gray-800">
+                        {cup.name}
+                      </h3>
+                      <span className="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded">
+                        Active
+                      </span>
+                    </div>
+                    <p className="text-gray-600 text-sm mb-3">
+                      {new Date(cup.start_date).toLocaleDateString()} - {new Date(cup.end_date).toLocaleDateString()}
+                    </p>
+                    <div className="flex items-center text-gray-500 text-sm">
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                      {cup.cup_teams?.length || 0} Teams
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
 
           <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
             Platform Features
