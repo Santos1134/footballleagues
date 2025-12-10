@@ -46,7 +46,7 @@ export default function Header() {
   }
 
   return (
-    <header className="bg-liberia-blue text-white shadow-lg border-b-4 border-liberia-red">
+    <header className="sticky top-0 z-50 bg-liberia-blue text-white shadow-lg border-b-4 border-liberia-red">
       <nav className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo and Title */}
