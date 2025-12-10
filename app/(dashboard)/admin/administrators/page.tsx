@@ -142,12 +142,7 @@ export default function AdministratorsPage() {
       email: formData.email.trim().toLowerCase(),
       password: formData.password,
       options: {
-        data: {
-          full_name: formData.full_name.trim() || null,
-          role: 'league_admin',
-          managed_league_id: formData.admin_type === 'league' ? formData.managed_league_id : null,
-          managed_cup_id: formData.admin_type === 'cup' ? formData.managed_cup_id : null
-        }
+        emailRedirectTo: undefined // Disable email confirmation
       }
     })
 
@@ -157,24 +152,30 @@ export default function AdministratorsPage() {
     }
 
     if (authData.user) {
-      // Step 2: Update the profile
-      const { error: updateError } = await supabase
+      // Step 2: Wait a moment for the profile to be created by trigger
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
+      // Step 3: Update or insert the profile
+      const { error: upsertError } = await supabase
         .from('profiles')
-        .update({
+        .upsert({
+          id: authData.user.id,
+          email: formData.email.trim().toLowerCase(),
           role: 'league_admin',
           managed_league_id: formData.admin_type === 'league' ? formData.managed_league_id : null,
           managed_cup_id: formData.admin_type === 'cup' ? formData.managed_cup_id : null,
           full_name: formData.full_name.trim() || null
+        }, {
+          onConflict: 'id'
         })
-        .eq('id', authData.user.id)
 
-      if (updateError) {
-        setError(updateError.message)
+      if (upsertError) {
+        setError(`Failed to create admin profile: ${upsertError.message}`)
         return
       }
 
       const managementType = formData.admin_type === 'league' ? 'league' : 'cup'
-      setSuccess(`${managementType} admin account created successfully! Login credentials sent to ${formData.email}`)
+      setSuccess(`${managementType} admin account created successfully! Credentials: ${formData.email}`)
       resetForm()
       fetchAdmins()
     }
