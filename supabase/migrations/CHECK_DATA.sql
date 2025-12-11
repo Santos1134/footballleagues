@@ -25,5 +25,5 @@ SELECT 'CUPS' as table_name, COUNT(*) as total_count, COUNT(*) FILTER (WHERE sta
 FROM cups;
 
 -- Show actual team names if any exist
-SELECT 'League Teams:' as info, name FROM teams LIMIT 10;
-SELECT 'Cup Teams:' as info, name FROM cup_teams_registry LIMIT 10;
+SELECT 'League Teams:' as info, name FROM teams ORDER BY name;
+SELECT 'Cup Teams:' as info, name FROM cup_teams_registry ORDER BY name;

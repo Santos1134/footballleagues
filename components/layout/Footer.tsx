@@ -53,18 +53,8 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a href="/rules" className="hover:text-yellow-400 transition">
-                  League Rules
-                </a>
-              </li>
-              <li>
                 <a href="https://wa.me/231776428126" target="_blank" rel="noopener noreferrer" className="hover:text-yellow-400 transition">
                   Contact
-                </a>
-              </li>
-              <li>
-                <a href="/privacy" className="hover:text-yellow-400 transition">
-                  Privacy Policy
                 </a>
               </li>
             </ul>
