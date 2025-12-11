@@ -52,7 +52,7 @@ export default function DivisionsPage() {
     if (divisionsData) {
       // Fetch team counts for each division
       const divisionsWithCounts = await Promise.all(
-        divisionsData.map(async (division) => {
+        divisionsData.map(async (division: any) => {
           const { count } = await supabase
             .from('teams')
             .select('*', { count: 'exact', head: true })

@@ -70,7 +70,7 @@ export default function TeamManagerDashboard() {
       setStats(prev => ({
         ...prev,
         total_players: playersData.length,
-        active_players: playersData.filter(p => p.is_active).length
+        active_players: playersData.filter((p: any) => p.is_active).length
       }))
     }
 

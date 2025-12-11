@@ -51,8 +51,8 @@ export default function TopScorers() {
       .order('name')
 
     const allCompetitions: Competition[] = [
-      ...(leagues || []).map(l => ({ id: l.id, name: l.name, type: 'league' as const })),
-      ...(cups || []).map(c => ({ id: c.id, name: c.name, type: 'cup' as const }))
+      ...(leagues || []).map((l: any) => ({ id: l.id, name: l.name, type: 'league' as const })),
+      ...(cups || []).map((c: any) => ({ id: c.id, name: c.name, type: 'cup' as const }))
     ]
 
     setCompetitions(allCompetitions)
@@ -92,7 +92,7 @@ export default function TopScorers() {
           .select('id, division:divisions(league_id)')
           .eq('divisions.league_id', selectedCompetition.id)
 
-        const leagueTeamIds = new Set(leagueTeams?.map(t => t.id))
+        const leagueTeamIds = new Set(leagueTeams?.map((t: any) => t.id))
 
         scorersData = data
           .filter((p: any) => leagueTeamIds.has(p.team_id))

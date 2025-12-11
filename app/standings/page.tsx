@@ -57,7 +57,7 @@ export default function StandingsPage() {
       .order('name')
 
     // Fetch standings for each division with team logos
-    const standingsPromises = divisions?.map(async (division) => {
+    const standingsPromises = divisions?.map(async (division: any) => {
       const { data } = await supabase
         .from('division_standings')
         .select('*')
@@ -68,7 +68,7 @@ export default function StandingsPage() {
 
       // Fetch team logos
       const standingsWithLogos = await Promise.all(
-        (data || []).map(async (standing) => {
+        (data || []).map(async (standing: any) => {
           const { data: team } = await supabase
             .from('teams')
             .select('logo_url')
@@ -106,7 +106,7 @@ export default function StandingsPage() {
       `)
       .order('group_order')
 
-    const cupStandingsPromises = cupGroups?.map(async (group) => {
+    const cupStandingsPromises = cupGroups?.map(async (group: any) => {
       const { data: teams } = await supabase
         .from('cup_teams')
         .select(`

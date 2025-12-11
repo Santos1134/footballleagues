@@ -607,7 +607,7 @@ export default function CupDetailsPage() {
       // Calculate stats for each team
       const teamStats: Record<string, any> = {}
 
-      teamsData.forEach(team => {
+      teamsData.forEach((team: any) => {
         teamStats[team.cup_team_id] = {
           id: team.id,
           played: 0,
@@ -622,7 +622,7 @@ export default function CupDetailsPage() {
       })
 
       // Process each completed match
-      completedMatches.forEach(match => {
+      completedMatches.forEach((match: any) => {
         const homeTeamId = match.home_cup_team_id
         const awayTeamId = match.away_cup_team_id
         const homeScore = match.home_score || 0
