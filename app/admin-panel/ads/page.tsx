@@ -12,6 +12,11 @@ interface Ad {
   created_at: string
 }
 
+interface Toast {
+  message: string
+  type: 'success' | 'error'
+}
+
 export default function AdsManagement() {
   const [ads, setAds] = useState<Ad[]>([])
   const [loading, setLoading] = useState(true)
@@ -19,7 +24,13 @@ export default function AdsManagement() {
   const [linkUrl, setLinkUrl] = useState('')
   const [title, setTitle] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [toast, setToast] = useState<Toast | null>(null)
   const supabase = createClient()
+
+  const showToast = (message: string, type: 'success' | 'error') => {
+    setToast({ message, type })
+    setTimeout(() => setToast(null), 4000)
+  }
 
   useEffect(() => {
     fetchAds()
@@ -44,7 +55,7 @@ export default function AdsManagement() {
     e.preventDefault()
 
     if (!imageUrl.trim()) {
-      alert('Image URL is required')
+      showToast('Image URL is required', 'error')
       return
     }
 
@@ -62,9 +73,9 @@ export default function AdsManagement() {
 
       if (error) {
         console.error('Error updating ad:', error)
-        alert(`Failed to update ad: ${error.message}`)
+        showToast(`Failed to update: ${error.message}`, 'error')
       } else {
-        alert('Ad updated successfully!')
+        showToast('Ad updated successfully!', 'success')
         resetForm()
         fetchAds()
       }
@@ -81,9 +92,9 @@ export default function AdsManagement() {
 
       if (error) {
         console.error('Error creating ad:', error)
-        alert(`Failed to create ad: ${error.message}\n\nDetails: ${error.details || 'No details'}\nHint: ${error.hint || 'No hint'}`)
+        showToast(`Failed to create: ${error.message}`, 'error')
       } else {
-        alert('Ad created successfully!')
+        showToast('Ad created successfully!', 'success')
         resetForm()
         fetchAds()
       }
@@ -116,9 +127,9 @@ export default function AdsManagement() {
 
     if (error) {
       console.error('Error toggling ad status:', error)
-      alert(`Failed to update ad status: ${error.message}\n\nDetails: ${error.details || 'No details'}\nHint: ${error.hint || 'No hint'}`)
+      showToast(`Failed to update: ${error.message}`, 'error')
     } else {
-      alert(`Ad ${!currentStatus ? 'activated' : 'deactivated'} successfully!`)
+      showToast(`Ad ${!currentStatus ? 'activated' : 'deactivated'} successfully!`, 'success')
       fetchAds()
     }
   }
@@ -133,9 +144,9 @@ export default function AdsManagement() {
 
     if (error) {
       console.error('Error deleting ad:', error)
-      alert(`Failed to delete ad: ${error.message}\n\nDetails: ${error.details || 'No details'}\nHint: ${error.hint || 'No hint'}`)
+      showToast(`Failed to delete: ${error.message}`, 'error')
     } else {
-      alert('Ad deleted successfully!')
+      showToast('Ad deleted successfully!', 'success')
       fetchAds()
     }
   }
@@ -346,6 +357,52 @@ export default function AdsManagement() {
           </ul>
         </div>
       </div>
+
+      {/* Toast Notification */}
+      {toast && (
+        <div className="fixed bottom-4 right-4 left-4 sm:left-auto sm:w-auto z-50 animate-in slide-in-from-bottom-5">
+          <div
+            className={`rounded-lg shadow-lg p-3 sm:p-4 max-w-sm ${
+              toast.type === 'success'
+                ? 'bg-green-600 text-white'
+                : 'bg-red-600 text-white'
+            }`}
+          >
+            <div className="flex items-start gap-2">
+              {toast.type === 'success' ? (
+                <svg
+                  className="w-5 h-5 flex-shrink-0 mt-0.5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  className="w-5 h-5 flex-shrink-0 mt-0.5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              )}
+              <p className="text-sm sm:text-base font-medium">{toast.message}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -69,22 +69,22 @@ export default function AdsPopup() {
     <>
       {/* Overlay */}
       <div
-        className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4"
+        className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-3 sm:p-4"
         onClick={handleClose}
       >
-        {/* Popup Container */}
+        {/* Popup Container - Smaller max sizes */}
         <div
-          className="relative bg-white rounded-lg shadow-2xl max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl w-full max-h-[85vh] sm:max-h-[90vh] overflow-hidden"
+          className="relative bg-white rounded-lg shadow-2xl max-w-[280px] sm:max-w-[360px] md:max-w-[420px] w-full max-h-[70vh] overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close Button */}
           <button
             onClick={handleClose}
-            className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10 bg-white hover:bg-gray-100 rounded-full p-1.5 sm:p-2 shadow-lg transition-all duration-200 hover:scale-110"
+            className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 z-10 bg-white hover:bg-gray-100 rounded-full p-1 sm:p-1.5 shadow-lg transition-all duration-200 hover:scale-110"
             aria-label="Close"
           >
             <svg
-              className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700"
+              className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -98,15 +98,15 @@ export default function AdsPopup() {
             </svg>
           </button>
 
-          {/* Ad Image */}
+          {/* Ad Image - Fixed smaller size */}
           <div
-            className={`${ad.link_url ? 'cursor-pointer' : ''}`}
+            className={`${ad.link_url ? 'cursor-pointer' : ''} overflow-hidden`}
             onClick={handleAdClick}
           >
             <img
               src={ad.image_url}
               alt={ad.title || 'Advertisement'}
-              className="w-full h-auto object-contain max-h-[70vh] sm:max-h-[75vh] md:max-h-[80vh]"
+              className="w-full h-auto object-cover max-h-[50vh] sm:max-h-[55vh]"
               onError={(e) => {
                 e.currentTarget.src = '/placeholder.png'
               }}
@@ -115,10 +115,10 @@ export default function AdsPopup() {
 
           {/* Optional: Click to visit link text */}
           {ad.link_url && (
-            <div className="p-3 sm:p-4 bg-gray-50 border-t border-gray-200">
+            <div className="p-2 sm:p-3 bg-gray-50 border-t border-gray-200">
               <button
                 onClick={handleAdClick}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition-colors duration-200 text-sm sm:text-base"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1.5 sm:py-2 px-3 sm:px-4 rounded-lg transition-colors duration-200 text-xs sm:text-sm"
               >
                 Learn More
               </button>
