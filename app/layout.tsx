@@ -76,6 +76,14 @@ export const metadata: Metadata = {
   verification: {
     // Add your Google Search Console verification code here later
     // google: 'your-verification-code',
+  },
+  category: 'sports',
+  applicationName: 'Liberia Leagues',
+  referrer: 'origin-when-cross-origin',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
   }
 };
 

@@ -50,8 +50,31 @@ export default async function Home() {
     players: playersResult.count || 0,
   }
 
+  // Structured data for SEO
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "SportsOrganization",
+    "name": "Liberia Leagues",
+    "description": "Official platform for Liberia's football leagues. View fixtures, standings, teams, players, and live match results.",
+    "url": "https://www.liberialeagues.com",
+    "logo": "https://www.liberialeagues.com/logo.png",
+    "sameAs": [
+      "https://twitter.com/liberialeagues",
+      "https://facebook.com/liberialeagues"
+    ],
+    "sport": "Football",
+    "address": {
+      "@type": "PostalAddress",
+      "addressCountry": "LR"
+    }
+  }
+
   return (
     <div className="bg-gray-50">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       <section className="bg-gradient-to-r from-liberia-blue to-liberia-blue-dark text-white py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
