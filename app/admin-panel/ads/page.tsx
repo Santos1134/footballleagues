@@ -108,19 +108,23 @@ export default function AdsManagement() {
   const handleToggleActive = async (id: string, currentStatus: boolean) => {
     const { error } = await supabase
       .from('ads')
-      .update({ is_active: !currentStatus })
+      .update({
+        is_active: !currentStatus,
+        updated_at: new Date().toISOString()
+      })
       .eq('id', id)
 
     if (error) {
       console.error('Error toggling ad status:', error)
-      alert('Failed to update ad status')
+      alert(`Failed to update ad status: ${error.message}\n\nDetails: ${error.details || 'No details'}\nHint: ${error.hint || 'No hint'}`)
     } else {
+      alert(`Ad ${!currentStatus ? 'activated' : 'deactivated'} successfully!`)
       fetchAds()
     }
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this ad?')) return
+    if (!confirm('Are you sure you want to delete this ad? This action cannot be undone.')) return
 
     const { error } = await supabase
       .from('ads')
@@ -129,7 +133,7 @@ export default function AdsManagement() {
 
     if (error) {
       console.error('Error deleting ad:', error)
-      alert('Failed to delete ad')
+      alert(`Failed to delete ad: ${error.message}\n\nDetails: ${error.details || 'No details'}\nHint: ${error.hint || 'No hint'}`)
     } else {
       alert('Ad deleted successfully!')
       fetchAds()
@@ -137,13 +141,13 @@ export default function AdsManagement() {
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-6 md:p-8">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8">Advertisement Management</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">Advertisement Management</h1>
 
         {/* Ad Form */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-4">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6 sm:mb-8">
+          <h2 className="text-lg sm:text-xl font-semibold mb-4">
             {editingId ? 'Edit Advertisement' : 'Create New Advertisement'}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -196,10 +200,10 @@ export default function AdsManagement() {
               </p>
             </div>
 
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <button
                 type="submit"
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition text-sm sm:text-base"
               >
                 {editingId ? 'Update Ad' : 'Create Ad'}
               </button>
@@ -207,7 +211,7 @@ export default function AdsManagement() {
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition"
+                  className="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition text-sm sm:text-base"
                 >
                   Cancel
                 </button>
@@ -217,8 +221,8 @@ export default function AdsManagement() {
         </div>
 
         {/* Active Ads List */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-4">Current Advertisements</h2>
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-semibold mb-4">Current Advertisements</h2>
 
           {loading ? (
             <p className="text-gray-500">Loading ads...</p>
@@ -229,17 +233,17 @@ export default function AdsManagement() {
               {ads.map((ad) => (
                 <div
                   key={ad.id}
-                  className={`border rounded-lg p-4 ${
+                  className={`border rounded-lg p-3 sm:p-4 ${
                     ad.is_active ? 'border-green-300 bg-green-50' : 'border-gray-300 bg-gray-50'
                   }`}
                 >
-                  <div className="flex items-start gap-4">
+                  <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
                     {/* Image Preview */}
-                    <div className="flex-shrink-0">
+                    <div className="flex-shrink-0 w-full sm:w-auto">
                       <img
                         src={ad.image_url}
                         alt={ad.title || 'Ad'}
-                        className="w-32 h-32 object-cover rounded border border-gray-300"
+                        className="w-full sm:w-24 md:w-32 h-auto sm:h-24 md:h-32 object-cover rounded border border-gray-300"
                         onError={(e) => {
                           e.currentTarget.src = '/placeholder.png'
                         }}
@@ -247,14 +251,14 @@ export default function AdsManagement() {
                     </div>
 
                     {/* Ad Info */}
-                    <div className="flex-grow">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h3 className="font-semibold text-lg">
+                    <div className="flex-grow w-full">
+                      <div className="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-0">
+                        <div className="flex-grow">
+                          <h3 className="font-semibold text-base sm:text-lg">
                             {ad.title || 'Untitled Ad'}
                           </h3>
-                          <div className="text-sm text-gray-600 mt-1 space-y-1">
-                            <p>
+                          <div className="text-xs sm:text-sm text-gray-600 mt-1 space-y-1">
+                            <p className="break-all">
                               <span className="font-medium">Image:</span>{' '}
                               <a
                                 href={ad.image_url}
@@ -262,11 +266,11 @@ export default function AdsManagement() {
                                 rel="noopener noreferrer"
                                 className="text-blue-600 hover:underline"
                               >
-                                {ad.image_url.substring(0, 50)}...
+                                {ad.image_url.substring(0, 40)}...
                               </a>
                             </p>
                             {ad.link_url && (
-                              <p>
+                              <p className="break-all">
                                 <span className="font-medium">Link:</span>{' '}
                                 <a
                                   href={ad.link_url}
@@ -274,7 +278,7 @@ export default function AdsManagement() {
                                   rel="noopener noreferrer"
                                   className="text-blue-600 hover:underline"
                                 >
-                                  {ad.link_url.substring(0, 50)}...
+                                  {ad.link_url.substring(0, 40)}...
                                 </a>
                               </p>
                             )}
@@ -285,9 +289,9 @@ export default function AdsManagement() {
                         </div>
 
                         {/* Status Badge */}
-                        <div>
+                        <div className="self-start">
                           <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            className={`px-2 sm:px-3 py-1 rounded-full text-xs font-semibold ${
                               ad.is_active
                                 ? 'bg-green-200 text-green-800'
                                 : 'bg-gray-200 text-gray-800'
@@ -299,16 +303,16 @@ export default function AdsManagement() {
                       </div>
 
                       {/* Actions */}
-                      <div className="flex gap-2 mt-4">
+                      <div className="flex flex-wrap gap-2 mt-3 sm:mt-4">
                         <button
                           onClick={() => handleEdit(ad)}
-                          className="px-4 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition"
+                          className="flex-1 sm:flex-none px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-600 text-white text-xs sm:text-sm rounded hover:bg-blue-700 transition"
                         >
                           Edit
                         </button>
                         <button
                           onClick={() => handleToggleActive(ad.id, ad.is_active)}
-                          className={`px-4 py-1 text-white text-sm rounded transition ${
+                          className={`flex-1 sm:flex-none px-3 sm:px-4 py-1.5 sm:py-2 text-white text-xs sm:text-sm rounded transition ${
                             ad.is_active
                               ? 'bg-yellow-600 hover:bg-yellow-700'
                               : 'bg-green-600 hover:bg-green-700'
@@ -318,7 +322,7 @@ export default function AdsManagement() {
                         </button>
                         <button
                           onClick={() => handleDelete(ad.id)}
-                          className="px-4 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition"
+                          className="flex-1 sm:flex-none px-3 sm:px-4 py-1.5 sm:py-2 bg-red-600 text-white text-xs sm:text-sm rounded hover:bg-red-700 transition"
                         >
                           Delete
                         </button>
@@ -332,9 +336,9 @@ export default function AdsManagement() {
         </div>
 
         {/* Info Box */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
-          <h3 className="font-semibold text-blue-900 mb-2">How It Works</h3>
-          <ul className="text-sm text-blue-800 space-y-1">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4 mt-4 sm:mt-6">
+          <h3 className="font-semibold text-blue-900 mb-2 text-sm sm:text-base">How It Works</h3>
+          <ul className="text-xs sm:text-sm text-blue-800 space-y-1">
             <li>• Active ads will appear as a popup when users first visit the website</li>
             <li>• Only one active ad will be shown at a time (the most recent)</li>
             <li>• Users can close the popup, and it won't show again in that session</li>
