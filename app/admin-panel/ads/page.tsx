@@ -62,7 +62,7 @@ export default function AdsManagement() {
 
       if (error) {
         console.error('Error updating ad:', error)
-        alert('Failed to update ad')
+        alert(`Failed to update ad: ${error.message}`)
       } else {
         alert('Ad updated successfully!')
         resetForm()
@@ -81,7 +81,7 @@ export default function AdsManagement() {
 
       if (error) {
         console.error('Error creating ad:', error)
-        alert('Failed to create ad')
+        alert(`Failed to create ad: ${error.message}\n\nDetails: ${error.details || 'No details'}\nHint: ${error.hint || 'No hint'}`)
       } else {
         alert('Ad created successfully!')
         resetForm()
