@@ -63,6 +63,7 @@ export default function AdministratorsPage() {
   const fetchAdmins = async () => {
     setLoading(true)
 
+    // Fetch all league_admin users who manage either a league or a cup
     const { data } = await supabase
       .from('profiles')
       .select(`
@@ -79,10 +80,12 @@ export default function AdministratorsPage() {
       .eq('role', 'league_admin')
       .order('created_at', { ascending: false })
 
-    if (data) {
-      setAdmins(data as any)
-    }
+    // Filter to only show admins who manage something
+    const filteredData = data?.filter(admin =>
+      admin.managed_league_id !== null || admin.managed_cup_id !== null
+    ) || []
 
+    setAdmins(filteredData as any)
     setLoading(false)
   }
 
