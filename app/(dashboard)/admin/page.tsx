@@ -50,20 +50,22 @@ export default async function AdminDashboard() {
     <div className="min-h-screen bg-gray-50">
       {/* Header with Liberian Colors */}
       <div className="bg-gradient-to-r from-liberia-blue to-liberia-blue-dark text-white shadow-lg border-b-4 border-liberia-red">
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-4xl font-bold mb-2">Admin Dashboard</h1>
-              <p className="text-blue-100">Manage your league system</p>
+        <div className="container mx-auto px-4 py-4 md:py-8">
+          <div className="flex justify-between items-center gap-4">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl md:text-4xl font-bold mb-1 md:mb-2 truncate">Admin Dashboard</h1>
+              <p className="text-sm md:text-base text-blue-100">Manage your league system</p>
             </div>
-            <LogoutButton />
+            <div className="flex-shrink-0">
+              <LogoutButton />
+            </div>
           </div>
         </div>
       </div>
 
       <div className="container mx-auto px-4 py-8">
         {/* Statistics Cards with Liberian Colors */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-6 mb-8">
           {(isSuperAdmin || isLeagueAdmin) && (
             <>
               <div className="bg-white p-6 rounded-lg shadow-lg border-t-4 border-liberia-red">
@@ -93,54 +95,54 @@ export default async function AdminDashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-white rounded-lg shadow-lg p-8 mb-8 border-l-4 border-liberia-red">
-          <h2 className="text-2xl font-bold mb-6 text-liberia-blue">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white rounded-lg shadow-lg p-4 md:p-8 mb-8 border-l-4 border-liberia-red">
+          <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6 text-liberia-blue">Quick Actions</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
             {(isSuperAdmin || isLeagueAdmin) && (
               <>
                 <Link
                   href="/admin/leagues"
-                  className="p-6 bg-gradient-to-br from-liberia-blue to-liberia-blue-dark text-white rounded-lg hover:shadow-xl transition-all transform hover:scale-105"
+                  className="p-4 md:p-6 bg-gradient-to-br from-liberia-blue to-liberia-blue-dark text-white rounded-lg hover:shadow-xl transition-all transform hover:scale-105"
                 >
-                  <div className="text-3xl mb-3">⚽</div>
-                  <div className="font-bold text-lg">Manage Leagues</div>
-                  <div className="text-sm text-blue-100 mt-1">Create and manage leagues</div>
+                  <div className="text-2xl md:text-3xl mb-2 md:mb-3">⚽</div>
+                  <div className="font-bold text-base md:text-lg">Manage Leagues</div>
+                  <div className="text-xs md:text-sm text-blue-100 mt-1">Create and manage leagues</div>
                 </Link>
 
                 <Link
                   href="/admin/matches"
-                  className="p-6 bg-gradient-to-br from-liberia-red to-liberia-red-dark text-white rounded-lg hover:shadow-xl transition-all transform hover:scale-105"
+                  className="p-4 md:p-6 bg-gradient-to-br from-liberia-red to-liberia-red-dark text-white rounded-lg hover:shadow-xl transition-all transform hover:scale-105"
                 >
-                  <div className="text-3xl mb-3">📅</div>
-                  <div className="font-bold text-lg">Manage Matches</div>
-                  <div className="text-sm text-red-100 mt-1">Schedule and manage fixtures</div>
+                  <div className="text-2xl md:text-3xl mb-2 md:mb-3">📅</div>
+                  <div className="font-bold text-base md:text-lg">Manage Matches</div>
+                  <div className="text-xs md:text-sm text-red-100 mt-1">Schedule and manage fixtures</div>
                 </Link>
 
                 <Link
                   href="/standings"
-                  className="p-6 bg-gradient-to-br from-liberia-blue to-liberia-blue-dark text-white rounded-lg hover:shadow-xl transition-all transform hover:scale-105"
+                  className="p-4 md:p-6 bg-gradient-to-br from-liberia-blue to-liberia-blue-dark text-white rounded-lg hover:shadow-xl transition-all transform hover:scale-105"
                 >
-                  <div className="text-3xl mb-3">📊</div>
-                  <div className="font-bold text-lg">View Standings</div>
-                  <div className="text-sm text-blue-100 mt-1">League tables and stats</div>
+                  <div className="text-2xl md:text-3xl mb-2 md:mb-3">📊</div>
+                  <div className="font-bold text-base md:text-lg">View Standings</div>
+                  <div className="text-xs md:text-sm text-blue-100 mt-1">League tables and stats</div>
                 </Link>
 
                 <Link
                   href="/admin/transfers"
-                  className="p-6 bg-gradient-to-br from-liberia-blue to-liberia-blue-dark text-white rounded-lg hover:shadow-xl transition-all transform hover:scale-105"
+                  className="p-4 md:p-6 bg-gradient-to-br from-liberia-blue to-liberia-blue-dark text-white rounded-lg hover:shadow-xl transition-all transform hover:scale-105"
                 >
-                  <div className="text-3xl mb-3">🔄</div>
-                  <div className="font-bold text-lg">Player Transfers</div>
-                  <div className="text-sm text-blue-100 mt-1">Manage player movements</div>
+                  <div className="text-2xl md:text-3xl mb-2 md:mb-3">🔄</div>
+                  <div className="font-bold text-base md:text-lg">Player Transfers</div>
+                  <div className="text-xs md:text-sm text-blue-100 mt-1">Manage player movements</div>
                 </Link>
 
                 <Link
                   href="/admin/archives"
-                  className="p-6 bg-gradient-to-br from-liberia-red to-liberia-red-dark text-white rounded-lg hover:shadow-xl transition-all transform hover:scale-105"
+                  className="p-4 md:p-6 bg-gradient-to-br from-liberia-red to-liberia-red-dark text-white rounded-lg hover:shadow-xl transition-all transform hover:scale-105"
                 >
-                  <div className="text-3xl mb-3">📦</div>
-                  <div className="font-bold text-lg">Season Archives</div>
-                  <div className="text-sm text-red-100 mt-1">Archive and restore leagues</div>
+                  <div className="text-2xl md:text-3xl mb-2 md:mb-3">📦</div>
+                  <div className="font-bold text-base md:text-lg">Season Archives</div>
+                  <div className="text-xs md:text-sm text-red-100 mt-1">Archive and restore leagues</div>
                 </Link>
               </>
             )}
@@ -148,11 +150,11 @@ export default async function AdminDashboard() {
             {(isSuperAdmin || isCupAdmin) && (
               <Link
                 href="/admin/cups"
-                className="p-6 bg-gradient-to-br from-yellow-500 to-yellow-600 text-white rounded-lg hover:shadow-xl transition-all transform hover:scale-105"
+                className="p-4 md:p-6 bg-gradient-to-br from-yellow-500 to-yellow-600 text-white rounded-lg hover:shadow-xl transition-all transform hover:scale-105"
               >
-                <div className="text-3xl mb-3">🏆</div>
-                <div className="font-bold text-lg">Cup Competitions</div>
-                <div className="text-sm text-yellow-100 mt-1">Create and manage tournaments</div>
+                <div className="text-2xl md:text-3xl mb-2 md:mb-3">🏆</div>
+                <div className="font-bold text-base md:text-lg">Cup Competitions</div>
+                <div className="text-xs md:text-sm text-yellow-100 mt-1">Create and manage tournaments</div>
               </Link>
             )}
 
@@ -160,20 +162,20 @@ export default async function AdminDashboard() {
               <>
                 <Link
                   href="/admin/administrators"
-                  className="p-6 bg-gradient-to-br from-purple-600 to-purple-700 text-white rounded-lg hover:shadow-xl transition-all transform hover:scale-105"
+                  className="p-4 md:p-6 bg-gradient-to-br from-purple-600 to-purple-700 text-white rounded-lg hover:shadow-xl transition-all transform hover:scale-105"
                 >
-                  <div className="text-3xl mb-3">👥</div>
-                  <div className="font-bold text-lg">Administrators</div>
-                  <div className="text-sm text-purple-100 mt-1">Manage league & cup admins</div>
+                  <div className="text-2xl md:text-3xl mb-2 md:mb-3">👥</div>
+                  <div className="font-bold text-base md:text-lg">Administrators</div>
+                  <div className="text-xs md:text-sm text-purple-100 mt-1">Manage league & cup admins</div>
                 </Link>
 
                 <Link
                   href="/admin/announcements"
-                  className="p-6 bg-gradient-to-br from-liberia-red to-liberia-red-dark text-white rounded-lg hover:shadow-xl transition-all transform hover:scale-105"
+                  className="p-4 md:p-6 bg-gradient-to-br from-liberia-red to-liberia-red-dark text-white rounded-lg hover:shadow-xl transition-all transform hover:scale-105"
                 >
-                  <div className="text-3xl mb-3">📢</div>
-                  <div className="font-bold text-lg">Announcements</div>
-                  <div className="text-sm text-red-100 mt-1">Manage league news</div>
+                  <div className="text-2xl md:text-3xl mb-2 md:mb-3">📢</div>
+                  <div className="font-bold text-base md:text-lg">Announcements</div>
+                  <div className="text-xs md:text-sm text-red-100 mt-1">Manage league news</div>
                 </Link>
               </>
             )}
