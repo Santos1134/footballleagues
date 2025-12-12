@@ -28,7 +28,12 @@
       "Bash(curl:*)",
       "Bash(echo:*)",
       "Bash(npm run build:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(git show:*)",
+      "Bash(git config:*)",
+      "Bash(npm i:*)",
+      "Bash(cat:*)",
+      "Bash(taskkill:*)"
     ],
     "deny": [],
     "ask": []
