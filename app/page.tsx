@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import AnnouncementsFeed from '@/components/AnnouncementsFeed'
+import AdsPopup from '@/components/AdsPopup'
 import { createClient } from '@/lib/supabase/server'
 
 export default async function Home() {
@@ -71,6 +72,9 @@ export default async function Home() {
 
   return (
     <div className="bg-gray-50">
+      {/* Ads Popup */}
+      <AdsPopup />
+
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
