@@ -69,22 +69,22 @@ export default function AdsPopup() {
     <>
       {/* Overlay */}
       <div
-        className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+        className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4"
         onClick={handleClose}
       >
         {/* Popup Container */}
         <div
-          className="relative bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden"
+          className="relative bg-white rounded-lg shadow-2xl max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl w-full max-h-[85vh] sm:max-h-[90vh] overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close Button */}
           <button
             onClick={handleClose}
-            className="absolute top-4 right-4 z-10 bg-white hover:bg-gray-100 rounded-full p-2 shadow-lg transition-all duration-200 hover:scale-110"
+            className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10 bg-white hover:bg-gray-100 rounded-full p-1.5 sm:p-2 shadow-lg transition-all duration-200 hover:scale-110"
             aria-label="Close"
           >
             <svg
-              className="w-6 h-6 text-gray-700"
+              className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -106,7 +106,7 @@ export default function AdsPopup() {
             <img
               src={ad.image_url}
               alt={ad.title || 'Advertisement'}
-              className="w-full h-auto object-contain max-h-[80vh]"
+              className="w-full h-auto object-contain max-h-[70vh] sm:max-h-[75vh] md:max-h-[80vh]"
               onError={(e) => {
                 e.currentTarget.src = '/placeholder.png'
               }}
@@ -115,10 +115,10 @@ export default function AdsPopup() {
 
           {/* Optional: Click to visit link text */}
           {ad.link_url && (
-            <div className="p-4 bg-gray-50 border-t border-gray-200">
+            <div className="p-3 sm:p-4 bg-gray-50 border-t border-gray-200">
               <button
                 onClick={handleAdClick}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition-colors duration-200 text-sm sm:text-base"
               >
                 Learn More
               </button>
