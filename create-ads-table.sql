@@ -12,11 +12,23 @@ CREATE TABLE IF NOT EXISTS ads (
 -- Add RLS policies
 ALTER TABLE ads ENABLE ROW LEVEL SECURITY;
 
--- Anyone can view active ads
-CREATE POLICY "Anyone can view active ads"
+-- Anyone can view active ads (public)
+CREATE POLICY "Public can view active ads"
   ON ads
   FOR SELECT
   USING (is_active = true);
+
+-- Admins can view all ads
+CREATE POLICY "Admins can view all ads"
+  ON ads
+  FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM profiles
+      WHERE profiles.id = auth.uid()
+      AND profiles.role = 'admin'
+    )
+  );
 
 -- Only admins can insert ads
 CREATE POLICY "Admins can insert ads"
