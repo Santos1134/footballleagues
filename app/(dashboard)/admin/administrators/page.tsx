@@ -81,11 +81,11 @@ export default function AdministratorsPage() {
       .order('created_at', { ascending: false })
 
     // Filter to only show admins who manage something
-    const filteredData = data?.filter(admin =>
+    const filteredData = data?.filter((admin: Admin) =>
       admin.managed_league_id !== null || admin.managed_cup_id !== null
     ) || []
 
-    setAdmins(filteredData as any)
+    setAdmins(filteredData)
     setLoading(false)
   }
 
