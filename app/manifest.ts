@@ -11,14 +11,64 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: '#BF0A30',
     icons: [
       {
+        src: '/icon-72.png',
+        sizes: '72x72',
+        type: 'image/png',
+        purpose: 'any',
+      },
+      {
+        src: '/icon-96.png',
+        sizes: '96x96',
+        type: 'image/png',
+        purpose: 'any',
+      },
+      {
+        src: '/icon-128.png',
+        sizes: '128x128',
+        type: 'image/png',
+        purpose: 'any',
+      },
+      {
+        src: '/icon-144.png',
+        sizes: '144x144',
+        type: 'image/png',
+        purpose: 'any',
+      },
+      {
+        src: '/icon-152.png',
+        sizes: '152x152',
+        type: 'image/png',
+        purpose: 'any',
+      },
+      {
+        src: '/icon-180.png',
+        sizes: '180x180',
+        type: 'image/png',
+        purpose: 'any',
+      },
+      {
         src: '/icon-192.png',
         sizes: '192x192',
         type: 'image/png',
+        purpose: 'any maskable',
+      },
+      {
+        src: '/icon-384.png',
+        sizes: '384x384',
+        type: 'image/png',
+        purpose: 'any',
       },
       {
         src: '/icon-512.png',
         sizes: '512x512',
         type: 'image/png',
+        purpose: 'any maskable',
+      },
+      {
+        src: '/icon-1024.png',
+        sizes: '1024x1024',
+        type: 'image/png',
+        purpose: 'any',
       },
     ],
   }
